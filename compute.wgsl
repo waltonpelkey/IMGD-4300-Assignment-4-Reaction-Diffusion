@@ -1,6 +1,8 @@
 @group(0) @binding(0) var<uniform> res: vec2f;
-@group(0) @binding(1) var<storage> statein: array<f32>;
-@group(0) @binding(2) var<storage, read_write> stateout: array<f32>;
+@group(0) @binding(1) var<storage> Ain: array<f32>;
+@group(0) @binding(2) var<storage, read_write> Aout: array<f32>;
+@group(0) @binding(3) var<storage> Bin: array<f32>;
+@group(0) @binding(4) var<storage, read_write> Bout: array<f32>;
 
 fn index( x:i32, y:i32 ) -> u32 {
   let _res = vec2i(res);
@@ -8,25 +10,54 @@ fn index( x:i32, y:i32 ) -> u32 {
 }
 
 @compute
-@workgroup_size(8,8)
+@workgroup_size(8,8,1)
 fn cs( @builtin(global_invocation_id) _cell:vec3u ) {
   let cell = vec3i(_cell);
-
   let i = index(cell.x, cell.y);
-  let activeNeighbors = statein[ index(cell.x + 1, cell.y + 1) ] +
-                        statein[ index(cell.x + 1, cell.y)     ] +
-                        statein[ index(cell.x + 1, cell.y - 1) ] +
-                        statein[ index(cell.x, cell.y - 1)     ] +
-                        statein[ index(cell.x - 1, cell.y - 1) ] +
-                        statein[ index(cell.x - 1, cell.y)     ] +
-                        statein[ index(cell.x - 1, cell.y + 1) ] +
-                        statein[ index(cell.x, cell.y + 1)     ];
 
-  if( activeNeighbors == 2.0 ) {
-    stateout[i] = statein[i];
-  }else if( activeNeighbors == 3.) {
-    stateout[i] = 1.;
-  }else{
-    stateout[i] = 0.;
-  }
+  // Previous state
+  let A = Ain[i];
+  let B = Bin[i];
+
+  // Diffusion rates
+  let DiffusionRateA = 1.0;
+  let DiffusionRateB = 0.5;
+
+  // Laplacian calculations
+  let LaplacianAdjacentWeight = 0.2;
+  let LaplacianDiagonalWeight = 0.05;
+  let LaplacianA =      (LaplacianDiagonalWeight * Ain[ index(cell.x + 1, cell.y + 1) ]) +  // diagonal
+                        (LaplacianAdjacentWeight * Ain[ index(cell.x + 1, cell.y)     ]) +  // adjacent
+                        (LaplacianDiagonalWeight * Ain[ index(cell.x + 1, cell.y - 1) ]) +  // diagonal
+                        (LaplacianAdjacentWeight * Ain[ index(cell.x, cell.y - 1)     ]) +  // adjacent
+                        (LaplacianDiagonalWeight * Ain[ index(cell.x - 1, cell.y - 1) ]) +  // diagonal
+                        (LaplacianAdjacentWeight * Ain[ index(cell.x - 1, cell.y)     ]) +  // adjacent
+                        (LaplacianDiagonalWeight * Ain[ index(cell.x - 1, cell.y + 1) ]) +  // diagonal
+                        (LaplacianAdjacentWeight * Ain[ index(cell.x, cell.y + 1)     ]) +  // adjacent
+                        (-1.0 * Ain[ index(cell.x, cell.y) ]);                              // center
+
+  let LaplacianB =      (LaplacianDiagonalWeight * Bin[ index(cell.x + 1, cell.y + 1) ]) +  // diagonal
+                        (LaplacianAdjacentWeight * Bin[ index(cell.x + 1, cell.y)     ]) +  // adjacent
+                        (LaplacianDiagonalWeight * Bin[ index(cell.x + 1, cell.y - 1) ]) +  // diagonal
+                        (LaplacianAdjacentWeight * Bin[ index(cell.x, cell.y - 1)     ]) +  // adjacent
+                        (LaplacianDiagonalWeight * Bin[ index(cell.x - 1, cell.y - 1) ]) +  // diagonal
+                        (LaplacianAdjacentWeight * Bin[ index(cell.x - 1, cell.y)     ]) +  // adjacent
+                        (LaplacianDiagonalWeight * Bin[ index(cell.x - 1, cell.y + 1) ]) +  // diagonal
+                        (LaplacianAdjacentWeight * Bin[ index(cell.x, cell.y + 1)     ]) +  // adjacent
+                        (-1.0 * Bin[ index(cell.x, cell.y) ]);                              // center
+
+  // Feed and kill rates
+  let feed = 0.055;
+  let kill = 0.062;
+
+  // Time step
+  let dt = 1.0;
+
+  // Reaction diffusion equations
+  let newA = A + (DiffusionRateA * LaplacianA - A * B * B + feed * (1.0 - A)) * dt;
+  let newB = B + (DiffusionRateB * LaplacianB + A * B * B - (kill + feed) * B) * dt;
+  
+  // Write new state
+  Aout[i] = newA;
+  Bout[i] = newB;
 }
