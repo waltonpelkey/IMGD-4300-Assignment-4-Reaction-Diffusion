@@ -6,9 +6,46 @@
   <script src='/main.js' type='module'></script>
   <link rel='shortcut icon' href='data:image/x-icon;,' type='image/x-icon'>
   <title>Reaction Diffusion</title>
+  <style>body { font-family: Arial, sans-serif; margin: 0; }</style>
 </head>
 
 <body>
+  <!-- Feed rate input -->
+  <input type="text" id="feedRange" value="0.055">
+  <p>Feed rate base: <span id="feedRangeValue">0.055</span></p>
+  
+  <!-- Kill rate input -->
+  <input type='text' id='killRange' value='0.0575'>
+  <p>Kill rate base: <span id="killRangeValue">0.0575</span></p>
+
+  <!-- Diffusion rate A input -->
+  <input type='text' id='diffusionRange' value='1'>
+  <p>Diffusion rate A: <span id="diffusionRangeValue">1</span></p>
+
+  <!-- Diffusion rate B input -->
+  <input type='text' id='diffusionBRange' value='0.5'>
+  <p>Diffusion rate B: <span id="diffusionBRangeValue">0.5</span></p>
+
+  <!-- Feed rate range inputs -->
+  <input type='text' id='feedRangeLow' value='-0.045'>
+  <p>Feed rate adjustment low: <span id='feedRangeLowValue'>-0.045</span></p>
+
+  <!-- Kill rate range inputs -->
+  <input type='text' id='killRangeLow' value='-0.0125'>
+  <p>Kill rate adjustment low: <span id='killRangeLowValue'>-0.0125</span></p>
+
+  <!-- Feed rate range inputs -->
+  <input type='text' id='feedRangeHigh' value='0.045'>
+  <p>Feed rate adjustment high: <span id='feedRangeHighValue'>0.045</span></p>
+
+  <!-- Kill rate range inputs -->
+  <input type='text' id='killRangeHigh' value='0.0125'>
+  <p>Kill rate adjustment high: <span id='killRangeHighValue'>0.0125</span></p>
+
+  <!-- Rerun button-->
+  <button id="rerunButton">Rerun</button>
+
+  <p>Input positive or negative integer values in the above boxes to affect the simulation. If your input values cause the simulation to cease, you may want to hit the rerun button or change your input values.</p>
   <canvas></canvas>
   <p>Made by Walton Pelkey</p>
 </body>

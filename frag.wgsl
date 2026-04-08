@@ -4,9 +4,13 @@
 
 @fragment 
 fn fs( @builtin(position) pos : vec4f ) -> @location(0) vec4f {
-  let idx : u32 = u32( pos.y * res.x + pos.x );
+  let x = u32(pos.x);
+  let y = u32(pos.y);
+  let width = u32(res.x);
+  let idx = y * width + x;
   let a = A[idx];
   let b = B[idx];
   let greyscale = a - b;
+  
   return vec4f( greyscale, greyscale, greyscale, 1.);
 }
