@@ -1,4 +1,4 @@
-import { default as seagulls } from '/gulls.js'
+import { default as seagulls } from './gulls.js'
 
 // HTML Helpers
 const feedRange = document.getElementById('feedRange');
@@ -92,8 +92,8 @@ rerunButton.addEventListener('click', () => {
 })
 
 const sg      = await seagulls.init(),
-      frag    = await seagulls.import( '/frag.wgsl' ),
-      compute = await seagulls.import( '/compute.wgsl' ),
+      frag    = await seagulls.import( './frag.wgsl' ),
+      compute = await seagulls.import( './compute.wgsl' ),
       render  = seagulls.constants.vertex + frag,
       size    = (window.innerWidth * window.innerHeight),
       state   = new Float32Array( size )
