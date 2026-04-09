@@ -9,6 +9,7 @@ feedRangeValue.textContent = feedRange.value;
 feedRange.addEventListener('input', () => {
   feedRangeValue.textContent = feedRange.value;
   feedUniform.value = Number(feedRange.value);
+  updateMapSummaries();
 });
 
 const killRange = document.getElementById('killRange');
@@ -19,6 +20,7 @@ killRangeValue.textContent = killRange.value;
 killRange.addEventListener('input', () => {
   killRangeValue.textContent = killRange.value;
   killUniform.value = Number(killRange.value);
+  updateMapSummaries();
 });
 
 const dARange = document.getElementById('diffusionRange');
@@ -41,6 +43,18 @@ const killRangeLow = document.getElementById('killRangeLow');
 const killRangeLowValue = document.getElementById('killRangeLowValue');
 const killRangeHigh = document.getElementById('killRangeHigh');
 const killRangeHighValue = document.getElementById('killRangeHighValue');
+const feedActualLowValue = document.getElementById('feedActualLowValue');
+const feedActualHighValue = document.getElementById('feedActualHighValue');
+const killActualLowValue = document.getElementById('killActualLowValue');
+const killActualHighValue = document.getElementById('killActualHighValue');
+
+const formatValue = (value) => Number(value).toFixed(4).replace(/\.?0+$/, '');
+const updateMapSummaries = () => {
+  feedActualLowValue.textContent = formatValue(Number(feedRange.value) + Number(feedRangeLow.value));
+  feedActualHighValue.textContent = formatValue(Number(feedRange.value) + Number(feedRangeHigh.value));
+  killActualLowValue.textContent = formatValue(Number(killRange.value) + Number(killRangeLow.value));
+  killActualHighValue.textContent = formatValue(Number(killRange.value) + Number(killRangeHigh.value));
+};
 
 dBRangeValue.textContent = dBRange.value;
 
@@ -53,25 +67,30 @@ feedRangeLowValue.textContent = feedRangeLow.value;
 feedRangeHighValue.textContent = feedRangeHigh.value;
 killRangeLowValue.textContent = killRangeLow.value;
 killRangeHighValue.textContent = killRangeHigh.value;
+updateMapSummaries();
 
 feedRangeLow.addEventListener('input', () => {
   feedRangeLowValue.textContent = feedRangeLow.value;
   feedRangeLowUniform.value = Number(feedRangeLow.value);
+  updateMapSummaries();
 });
 
 feedRangeHigh.addEventListener('input', () => {
   feedRangeHighValue.textContent = feedRangeHigh.value;
   feedRangeHighUniform.value = Number(feedRangeHigh.value);
+  updateMapSummaries();
 }); 
 
 killRangeLow.addEventListener('input', () => {
   killRangeLowValue.textContent = killRangeLow.value;
   killRangeLowUniform.value = Number(killRangeLow.value);
+  updateMapSummaries();
 });
 
 killRangeHigh.addEventListener('input', () => {
   killRangeHighValue.textContent = killRangeHigh.value;
   killRangeHighUniform.value = Number(killRangeHigh.value);
+  updateMapSummaries();
 });
 
 const rerunButton = document.getElementById('rerunButton');

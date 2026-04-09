@@ -6,48 +6,144 @@
   <script src='./main.js' type='module'></script>
   <link rel='shortcut icon' href='data:image/x-icon;,' type='image/x-icon'>
   <title>Reaction Diffusion</title>
-  <style>body { font-family: Arial, sans-serif; margin: 0; }</style>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+    }
+
+    .controls {
+      max-width: 70rem;
+      padding: 1rem;
+      display: grid;
+      gap: 1rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .panels {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(18rem, 1fr));
+      gap: 1rem;
+      align-items: start;
+    }
+
+    .panel {
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid #d0d0d0;
+      border-radius: 0.75rem;
+      padding: 1rem;
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .panel h2 {
+      margin: 0;
+      font-size: 1.1rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(9rem, 1fr) minmax(0, 12rem);
+      gap: 0.6rem 0.8rem;
+      align-items: center;
+    }
+
+    label {
+      font-weight: 600;
+    }
+
+    input[type='number'] {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 0.45rem 0.55rem;
+      font: inherit;
+    }
+
+    .hint,
+    .summary,
+    .footer {
+      margin: 0;
+      color: #333;
+      line-height: 1.4;
+    }
+
+    .summary {
+      font-size: 0.95rem;
+    }
+
+    .actions {
+      display: flex;
+      gap: 0.75rem;
+      align-items: center;
+    }
+
+    button {
+      padding: 0.45rem 0.8rem;
+      font: inherit;
+    }
+
+    @media (max-width: 48rem) {
+      .panels {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 </head>
 
 <body>
-  <!-- Feed rate input -->
-  <input type="text" id="feedRange" value="0.055">
-  <p>Feed rate base: <span id="feedRangeValue">0.055</span></p>
-  
-  <!-- Kill rate input -->
-  <input type='text' id='killRange' value='0.0575'>
-  <p>Kill rate base: <span id="killRangeValue">0.0575</span></p>
+  <main class="controls">
+    <div class="panels">
+      <section class="panel">
+        <h2>Global Values</h2>
+        <div class="grid">
+          <label for="feedRange">Feed Base</label>
+          <input type="number" id="feedRange" value="0.055" step="0.0001">
 
-  <!-- Diffusion rate A input -->
-  <input type='text' id='diffusionRange' value='1'>
-  <p>Diffusion rate A: <span id="diffusionRangeValue">1</span></p>
+          <label for="killRange">Kill Base</label>
+          <input type='number' id='killRange' value='0.0575' step="0.0001">
 
-  <!-- Diffusion rate B input -->
-  <input type='text' id='diffusionBRange' value='0.5'>
-  <p>Diffusion rate B: <span id="diffusionBRangeValue">0.5</span></p>
+          <label for="diffusionRange">Diffusion A</label>
+          <input type='number' id='diffusionRange' value='1' step="0.01">
 
-  <!-- Feed rate range inputs -->
-  <input type='text' id='feedRangeLow' value='-0.045'>
-  <p>Feed rate adjustment low: <span id='feedRangeLowValue'>-0.045</span></p>
+          <label for="diffusionBRange">Diffusion B</label>
+          <input type='number' id='diffusionBRange' value='0.5' step="0.01">
+        </div>
+        <p class="summary">Feed base: <span id="feedRangeValue">0.055</span> | Kill base: <span id="killRangeValue">0.0575</span></p>
+        <p class="summary">Diffusion A: <span id="diffusionRangeValue">1</span> | Diffusion B: <span id="diffusionBRangeValue">0.5</span></p>
+      </section>
 
-  <!-- Kill rate range inputs -->
-  <input type='text' id='killRangeLow' value='-0.0125'>
-  <p>Kill rate adjustment low: <span id='killRangeLowValue'>-0.0125</span></p>
+      <section class="panel">
+        <h2>Style Map</h2>
+        <p class="hint">The map adds an offset to the base values. Feed changes from top to bottom. Kill changes from left to right.</p>
+        <div class="grid">
+          <label for="feedRangeLow">Feed Offset Top</label>
+          <input type='number' id='feedRangeLow' value='-0.045' step="0.0001">
 
-  <!-- Feed rate range inputs -->
-  <input type='text' id='feedRangeHigh' value='0.045'>
-  <p>Feed rate adjustment high: <span id='feedRangeHighValue'>0.045</span></p>
+          <label for="feedRangeHigh">Feed Offset Bottom</label>
+          <input type='number' id='feedRangeHigh' value='0.045' step="0.0001">
 
-  <!-- Kill rate range inputs -->
-  <input type='text' id='killRangeHigh' value='0.0125'>
-  <p>Kill rate adjustment high: <span id='killRangeHighValue'>0.0125</span></p>
+          <label for="killRangeLow">Kill Offset Left</label>
+          <input type='number' id='killRangeLow' value='-0.0125' step="0.0001">
 
-  <!-- Rerun button-->
-  <button id="rerunButton">Rerun</button>
+          <label for="killRangeHigh">Kill Offset Right</label>
+          <input type='number' id='killRangeHigh' value='0.0125' step="0.0001">
+        </div>
+        <p class="summary">Feed offsets: <span id='feedRangeLowValue'>-0.045</span> to <span id='feedRangeHighValue'>0.045</span></p>
+        <p class="summary">Actual feed on canvas: <span id='feedActualLowValue'>0.01</span> at top to <span id='feedActualHighValue'>0.1</span> at bottom</p>
+        <p class="summary">Kill offsets: <span id='killRangeLowValue'>-0.0125</span> to <span id='killRangeHighValue'>0.0125</span></p>
+        <p class="summary">Actual kill on canvas: <span id='killActualLowValue'>0.045</span> at left to <span id='killActualHighValue'>0.07</span> at right</p>
+      </section>
+    </div>
 
-  <p>Input positive or negative integer values in the above boxes to affect the simulation. If your input values cause the simulation to cease, you may want to hit the rerun button or change your input values.</p>
+    <div class="actions">
+      <button id="rerunButton">Rerun</button>
+      <p class="footer">If the simulation stalls, tweak the values and rerun.</p>
+    </div>
+  </main>
   <canvas></canvas>
-  <p>Made by Walton Pelkey</p>
+
+  <p>Credit: I used Karl Sims' reaction-diffusion algorithm as a starting point. I also used a large language model (ChatGPT) to make the UI, including the style defined in the HTML and grid layout on the page.</p>
 </body>
 
 </html>
