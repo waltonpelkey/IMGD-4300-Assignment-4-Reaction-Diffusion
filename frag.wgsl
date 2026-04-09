@@ -10,7 +10,8 @@ fn fs( @builtin(position) pos : vec4f ) -> @location(0) vec4f {
   let idx = y * width + x;
   let a = A[idx];
   let b = B[idx];
-  let greyscale = a - b;
-  
-  return vec4f( greyscale, greyscale, greyscale, 1.);
+  let greyscale = clamp(a - b, 0.0, 1.0);
+  let pink = vec4f(0.973, 0.514, 0.475, 1.0);
+  let color = vec4f(vec3f(1.0) + (1.0 - greyscale) * (pink.rgb - vec3f(1.0)), 1.0);
+  return color;
 }
